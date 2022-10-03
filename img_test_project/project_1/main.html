@@ -10,30 +10,43 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
+  <!-- 부트스트랩 불러오는 부분? -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
+    </script>
+  <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+  <!-- 캔버스 적용 -->
+  <script src="node_modules/chart.js/dist/chart.js"></script>
+
   <title>Hello, world!</title>
   <link rel="stylesheet" href="main.css" />
 </head>
 
 <body>
+  <!-- 네비바 -->
   <nav class="p-3 container navbar navbar-expand-lg navbar-light nav-distance">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">내 이미지에 맞는 별명은?</a>
+      <a class="navbar-brand" href="#">mbti 얼굴상 테스트</a>
     </div>
   </nav>
+
+  <!-- 타이틀 -->
   <section class="section">
-    <h1 class="title">남자에 맞는 이미지</h1>
-    <h2 class="subtitle mb-5">나의 이미지는 무엇일까?</h2>
+    <h1 class="title">내 외모에 가까운 mbti 유형은 무엇인가?</h1>
+    <h2 class="subtitle mb-5">얼굴상으로 mbti를 확인해보세요</h2>
   </section>
+
+  <!-- 유튜브 링크 -->
   <!-- <section class="youtube">
     <div class="youtubue-cover"><a href="" class="youtube-link"></a><img src="" alt="" class="youtube-icon"></div>
   </section> -->
-  <!-- Optional JavaScript; choose one of the two! -->
-  <!-- Option 1: Bootstrap Bundle with Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-    crossorigin="anonymous"></script>
-  <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+  <!-- 사진 파일 업로드 버튼 -->
   <div class="container file-upload">
+    <div class="text-center">
+      <h1 class="image-title"></h1>
+    </div>
     <div class="image-upload-wrap">
       <input class="file-upload-input" type='file' onchange="readURL(this);" accept="image/*" />
       <div class="drag-text">
@@ -41,15 +54,17 @@
         <h3 class="m-3 pb-5 upload_text">얼굴 사진을 업로드하세요!</h3>
       </div>
     </div>
-    <div class="file-upload-content">
-      <img class="file-upload-image" id="face_image" src="#" alt="your image" />
 
+    <!-- 파일 업로드 -->
+    <div class="file-upload-content">
+      <!-- 사진 파일 미리보기 -->
+      <img class="file-upload-image" id="face_image" src="#" alt="your image" />
       <!-- 파일 로딩 중 -->
       <div id="loading" class="animated bounce">
-        <div class="spinner-border" role="status">
+        <div class="spinner-border text-primary" role="status">
           <span class="sr-only"></span>
         </div>
-        <p class="text-center">AI가 당신의 얼굴형을 분석중입니다.</p>
+        <p class="text-center">당신의 mbti 얼굴형을 분석중입니다.</p>
       </div>
 
       <p class="result-message"></p>
@@ -58,7 +73,7 @@
       <div id="label-container" class="d-flex flex-column justify-content-around"></div>
 
       <!-- 제거 버튼 -->
-      <button type="button" onclick="removeUpload()" class="remove-image mt-3">
+      <button type="button" onclick="window.location.reload();" class="remove-image mt-3">
         다른 사진으로 재시도
       </button>
     </div>
@@ -72,23 +87,26 @@
         var reader = new FileReader();
 
         reader.onload = function (e) {
-          $('.image-upload-wrap').hide();
-          $('#loading').show();
-          $('.file-upload-image').attr('src', e.target.result);
-          $('.file-upload-content').show();
-          $('.image-title').html(input.files[0].name);
+          $('.image-upload-wrap').hide(); // 사진 업로드 버튼 숨기기
+          $('#loading').show(); // 로딩 화면 보여주기
+          $('.file-upload-image').attr('src', e.target.result); // 사진 텐서플로우에 업로드
+          $('.file-upload-content').show(); // 결과 보여주기
         };
 
+        // 결과 예측 및 로딩 숨기기
         reader.readAsDataURL(input.files[0]);
         init().then(() => {
           predict();
           $('#loading').hide();
         });
-      } else {
+      }
+      // 실패시 사진 삭제
+      else {
         removeUpload();
       }
     }
 
+    // 업로드된 사진 삭제
     function removeUpload() {
       $('.file-upload-input').replaceWith($('.file-upload-input').clone());
       $('.file-upload-content').hide();
@@ -106,11 +124,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
   <script type="text/javascript">
-    // More API functions here:
-    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
 
-    const URL = "https://teachablemachine.withgoogle.com/models/B7HGiBhNq/";
-    // const URL = "https://teachablemachine.withgoogle.com/models/IzlQyE-zD/"; // 연습
+    const URL = "https://teachablemachine.withgoogle.com/models/f4odHPG1n/";
 
     let model, webcam, labelContainer, maxPredictions;
     async function init() {
@@ -136,54 +151,103 @@
       // 정렬하기
       prediction.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
       console.log(prediction[0].className);
-      $('.result-message').html(prediction[0].className)
-      
-      var barWidth;
-      for (let i = 0; i < maxPredictions; i++) {
-        if (prediction[i].probability.toFixed(2) > 0.1) {
-          barWidth = Math.round(prediction[i].probability.toFixed(2) * 100) + "%";
-        } else if (prediction[i].probability.toFixed(2) >= 0.01) {
-          barWidth = "4%"
-        } else {
-          barWidth = "2%"
-        }
-        var labelTitle;
-        switch (prediction[i].className) {
-          case "엄지손가락상":
-            labelTitle = "엄지손가락"
+      var resultTitle, resultExplain, resultCeleb;
+      // if (document.getElementById("gender").checked) {
+      if (true) {
+        switch (prediction[0].className) {
+          case "INTJ":
+            resultTitle = "전략가 얼굴형"
+            resultExplain = "모든 일에 대해 계획을 세우며 상상력이 풍부한 전략가처럼 보이는 얼굴형 입니다."
+            resultCeleb = "INTj 연예인: 지드래곤(빅뱅), 류진(ITZY), 강동원, 손나은, 이경규 등"
             break;
-          case "꼴뚜기상":
-            labelTitle = "꼴뚜기상"
+          case "INTP":
+            resultTitle = "논리술사 얼굴형"
+            resultExplain = "지식을 끝없이 갈망하는 혁신적인 발명가처럼 보이는 얼굴형 입니다."
+            resultCeleb = "INTP 연예인: 진(방탄소년단), 슈가(방탄소년단), 소연((여자)아이들), 휘인(마마무), 기리보이"
             break;
-          case "개미핥기":
-            labelTitle = "개미핥기"
+          case "ENTJ":
+            resultTitle = "통솔자 얼굴형"
+            resultExplain = "항상 문제 해결 방법을 찾아내는 성격으로, 대담하고 상상력이 풍부하며 의지가 강력한 지도자처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ENTJ 연예인: 서현(소녀시대), 지코(블락비), 이특(슈퍼주니어), 주학년(더보이즈), 스윙스 등"
             break;
-          case "몽키상":
-            labelTitle = "몽키상"
+          case "ENTP":
+            resultTitle = "변론가 얼굴형"
+            resultExplain = "지적 도전을 즐기는 영리하고 호기심이 많은 사색가처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ENTP 연예인: 이수민, 제시, 육성재(비투비), 현진(스트레이키즈). 츄(이달의 소녀) 등"
             break;
-          case "꼬부기상":
-            labelTitle = "꼬부기상"
+          case "INFJ":
+            resultTitle = "옹호자 얼굴형"
+            resultExplain = "차분하고 신비한 분위기를 풍기는 성격으로, 다른 사람에게 의욕을 불어넣는 이상주의자처럼 보이는 얼굴형 입니다."
+            resultCeleb = "INFJ 연예인: 카이(엑소), 솔라(마마무), 마크(NCT), 태연(소녀시대), 태양(빅뱅) 등"
             break;
-          case "모기상":
-            labelTitle = "모기사"
+          case "INFP":
+            resultTitle = "중재자 얼굴형"
+            resultExplain = "항상 선을 행할 준비가 되어 있는 부드럽고 친절한 이타주의자처럼 보이는 얼굴형 입니다."
+            resultCeleb = "INFP 연예인: 아이유, 선미, 정국(방탄소년단), 조이(레드벨벳), 크러쉬 등"
             break;
-          case "메뚜기":
-            labelTitle = "메뚜기"
+          case "ENFJ":
+            resultTitle = "선도자 얼굴형"
+            resultExplain = "청중을 사로잡고 의욕을 불어넣는 카리스마 넘치는 지도자처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ENFJ 연예인: 지민(방탄소년단), 유나(ITZY), 승희(오마이걸), 민혁(몬스타엑스), 수호(엑소) 등"
+            break;
+          case "ENFP":
+            resultTitle = "활동가 얼굴형"
+            resultExplain = "열정적이고 창의적 성격으로, 긍정적으로 삶을 바라보는 사교적이면서도 자유로운 영혼처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ENFP 연예인: 이효리, 전소미, 화사(마마무), 뷔(방탄소년단), RM(방탄소년단) 등"
+            break;
+          case "ISTJ":
+            resultTitle = "현실주의자 얼굴형"
+            resultExplain = "사실을 중시하는 믿음직한 현실주의자 얼굴형처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ISTJ 연예인: 마크(GOT7), 이창섭, 이원석(데이브레이크), 홍진경, 안소희 등"
+            break;
+          case "ISFJ":
+            resultTitle = "수호자 얼굴형"
+            resultExplain = "주변 사람을 보호할 준비가 되어 있는 헌신적이고 따뜻한 수호자처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ISFJ 연예인: 신비(여자친구), 정연(트와이스), 다현(트와이스), 셔누(몬스타엑스), 진영(갓세븐) 등"
+            break;
+          case "ESTJ":
+            resultTitle = "경영자 얼굴형"
+            resultExplain = "사물과 사람을 관리하는 데 뛰어난 능력을 지닌 경영자처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ESTJ 연예인: 데프콘, 제인(모모랜드), 지수(블랙핑크), 김준수(JYJ), 한채영 등"
+            break;
+          case "ESFJ":
+            resultTitle = "집정관 얼굴형"
+            resultExplain = "배려심이 넘치고 항상 다른 사람을 도울 준비가 되어 있는 성격으로, 인기가 많고 사교성 높은 마당발처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ESFJ 연예인: 규현(슈퍼주니어), 혜리(걸스데이), 김남주(에이핑크), 지이홉(방탄소년단), 오마이걸(효정) 등"
+            break;
+          case "ISTP":
+            resultTitle = "장인 얼굴형"
+            resultExplain = "대담하면서도 현실적인 성격으로, 모든 종류의 도구를 자유자재로 다루는 장인처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ISTP 연예인: 김연아, 박명수, 은하(여자친구), 진호(펜타곤), 나연(트와이스) 등"
+            break;
+          case "ISFP":
+            resultTitle = "모험가 얼굴형"
+            resultExplain = "항상 새로운 경험을 추구하는 유연하고 매력 넘치는 예술가처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ISFP 연예인: 유재석, 슬기(레드벨벳), 백현(엑소), 이민혁(비투비), 미나(TWICE) 등"
+            break;
+          case "ESTP":
+            resultTitle = "사업가 얼굴형"
+            resultExplain = "위험을 기꺼이 감수하는 성격으로, 영리하고 에너지 넘치며 관찰력이 뛰어난 사업가처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ESTP 연예인: 연정(우주소녀), 정일훈(비투비), 재현(NCT), 김도형(잔나비), 전현무 등"
+            break;
+          case "ESFP":
+            resultTitle = "연예인 얼굴형"
+            resultExplain = "즉흥적이고 넘치는 에너지와 열정으로 주변 사람을 즐겁게 하는 연예인처럼 보이는 얼굴형 입니다."
+            resultCeleb = "ESFP 연예인: 비, 윤아, 수영(소녀시대), 주이(모모랜드), 강혜원 등"
             break;
           default:
-            labelTitle = "알수없음"
+            resultTitle = "알수없음"
+            resultExplain = ""
+            resultCeleb = ""
         }
-        
-        // 결과 예측 지수 보여주기.
-        var label = "<div class='animal-label d-flex align-items-center'>" + labelTitle + "</div>"
-        var bar = "<div class='bar-container position-relative container'><div class='" + prediction[i].className + "-box'></div><div class='d-flex justify-content-center align-items-center " + prediction[i].className + "-bar' style='width: " + barWidth + "'><span class='d-block percent-text'>" + Math.round(prediction[i].probability.toFixed(2) * 100) + "%</span></div></div>"
-        labelContainer.childNodes[i].innerHTML = label + bar;
       }
+      var title = "<h1 class='mt-3'>" + resultTitle + "</h1>"
+      var explain = "<h4 class='pt-2'>" + resultExplain + "</h4>"
+      var celeb = "<div class='pt-2 pb-2'>" + resultCeleb + "</div>"
+      $('.result-message').html(title + explain + celeb);
+      $('.image-title').html(prediction[0].className);
     }
   </script>
-
-
-
 </body>
 <!-- Copyright (c) 2021 by Aaron Vanston (https://codepen.io/aaronvanston/pen/yNYOXR)
 
